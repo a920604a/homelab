@@ -35,3 +35,17 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+
+  notification-bridge:
+    build: ./notification-bridge
+    restart: unless-stopped
+    environment:
+      - TELEGRAM_TOKEN=${TELEGRAM_TOKEN}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
+      - MQTT_HOST=mosquitto
+      - FRIGATE_HOST=http://frigate:5000
+    depends_on:
+      mosquitto:
+        condition: service_healthy
+      frigate:
+        condition: service_started
