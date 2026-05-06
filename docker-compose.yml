@@ -1,6 +1,26 @@
 name: homelab
 
 services:
+  frigate:
+    image: ghcr.io/blakeblackshear/frigate:stable
+    restart: unless-stopped
+    shm_size: "64mb"
+    volumes:
+      - ./config:/config
+      - /media/frigate:/media/frigate
+    ports:
+      - "127.0.0.1:5000:5000"
+      - "127.0.0.1:8554:8554"
+      - "127.0.0.1:8555:8555/tcp"
+      - "127.0.0.1:8555:8555/udp"
+    environment:
+      - FRIGATE_RTSP_USER=${RTSP_USER}
+      - FRIGATE_RTSP_PASSWORD=${RTSP_PASSWORD}
+      - FRIGATE_CAMERA_IP=${CAMERA_IP}
+    privileged: true
+    depends_on:
+      - mosquitto
+
   mosquitto:
     image: eclipse-mosquitto:2
     restart: unless-stopped

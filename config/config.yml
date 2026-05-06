@@ -1,0 +1,40 @@
+mqtt:
+  enabled: true
+  host: mosquitto
+  port: 1883
+
+cameras:
+  living_room:
+    ffmpeg:
+      inputs:
+        - path: rtsp://{FRIGATE_RTSP_USER}:{FRIGATE_RTSP_PASSWORD}@{FRIGATE_CAMERA_IP}:554/stream2
+          roles:
+            - detect
+        - path: rtsp://{FRIGATE_RTSP_USER}:{FRIGATE_RTSP_PASSWORD}@{FRIGATE_CAMERA_IP}:554/stream1
+          roles:
+            - record
+    detect:
+      enabled: true
+      width: 640
+      height: 360
+      fps: 5
+    record:
+      enabled: true
+      retain:
+        days: 3
+        mode: all
+      events:
+        retain:
+          default: 7
+          mode: active_objects
+    motion:
+      threshold: 25
+    snapshots:
+      enabled: true
+      retain:
+        default: 7
+
+detectors:
+  cpu:
+    type: cpu
+    num_threads: 2
