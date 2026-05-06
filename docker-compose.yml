@@ -4,7 +4,7 @@ services:
   frigate:
     image: ghcr.io/blakeblackshear/frigate:stable
     restart: unless-stopped
-    shm_size: "64mb"
+    shm_size: "128mb"
     volumes:
       - ./config:/config
       - /media/frigate:/media/frigate
@@ -17,9 +17,9 @@ services:
       - FRIGATE_RTSP_USER=${RTSP_USER}
       - FRIGATE_RTSP_PASSWORD=${RTSP_PASSWORD}
       - FRIGATE_CAMERA_IP=${CAMERA_IP}
-    privileged: true
     depends_on:
-      - mosquitto
+      mosquitto:
+        condition: service_healthy
 
   mosquitto:
     image: eclipse-mosquitto:2
@@ -30,3 +30,8 @@ services:
       - ./mosquitto/log:/mosquitto/log
     ports:
       - "127.0.0.1:1883:1883"
+    healthcheck:
+      test: ["CMD", "mosquitto_pub", "-h", "127.0.0.1", "-t", "health", "-m", "check", "-q", "1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
